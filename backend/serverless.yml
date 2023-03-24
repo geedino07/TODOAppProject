@@ -47,7 +47,7 @@ provider:
 
 functions:
 
-  # Auth:
+  Auth:
     handler: src/lambda/auth/auth0Authorizer.handler
 
   # TODO: Configure this function - 

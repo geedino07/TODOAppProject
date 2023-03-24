@@ -55,7 +55,7 @@ export const handler = async (
 }
 
 async function verifyToken(authHeader: string): Promise<JwtPayload> {
-  logger.info('Verifying token')
+  logger.info('Verifying token', authHeader.substring(0, 30))
   const token = getToken(authHeader)
   const jwt: Jwt = decode(token, { complete: true }) as Jwt
 
@@ -67,7 +67,7 @@ async function verifyToken(authHeader: string): Promise<JwtPayload> {
   const signingKeys = keys.find(key => key.kid === jwt.header.kid)
   logger.info('signingKeys', signingKeys)
   if (!signingKeys){
-    throw new Error("There was not key contained in teh JWKS endpoint");
+    throw new Error("There was not key contained in teh JWKS endpoint")
     
   }
   // get pem data
@@ -77,7 +77,7 @@ async function verifyToken(authHeader: string): Promise<JwtPayload> {
   const cert = `-------BEGIN CERTIFICATE------\n${pemData}\n---------END CERTIFICATE-------`
 
   //Verify token
-  const verifiedToken = verify(token, cert, {algorithms: ['RS256']}) as JwtPayload
+  const verifiedToken = verify(token, cert, { algorithms: ['RS256'] }) as JwtPayload
   return verifiedToken
 }
 
