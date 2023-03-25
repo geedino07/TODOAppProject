@@ -19,7 +19,7 @@ export class TodosAccess {
     ){}
 
     async getAllTodos(userId: string): Promise<TodoItem[]>{
-        logger.info('Get all todos function called')
+        logger.info('Get all todos function called-datalayer')
 
         const result = await this.docClient
         .query({
@@ -37,7 +37,7 @@ export class TodosAccess {
     }
 
     async createTodoItem(todoItem: TodoItem): Promise<TodoItem>{
-        logger.info('create todo item function called')
+        logger.info('create todo item function called-datalayer')
 
         const result = await this.docClient
         .put({
