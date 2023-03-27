@@ -12,12 +12,12 @@ const logger = createLogger('auth')
 // TODO: Provide a URL that can be used to download a certificate that can be used
 // to verify JWT token signature.
 // To get this URL you need to go to an Auth0 page -> Show Advanced Settings -> Endpoints -> JSON Web Key Set
-const jwksUrl = 'https://dev-ds5168tcwbb4s5zr.us.auth0.com/.well-known/jwks.json'
+const jwksUrl = 'https://dev-ds5168tcwbb4s5zr.us.auth0.com/.well-known/jwks.json' 
 
 export const handler = async (
   event: CustomAuthorizerEvent
 ): Promise<CustomAuthorizerResult> => {
-  logger.info('Authorizing a user', event.authorizationToken)
+  logger.info('Authorizing a user', event.authorizationToken.toLowerCase)
   try {
     const jwtToken = await verifyToken(event.authorizationToken)
     logger.info('User was authorized', jwtToken)
@@ -55,7 +55,7 @@ export const handler = async (
 }
 
 async function verifyToken(authHeader: string): Promise<JwtPayload> {
-  logger.info('Verifying token', authHeader.substring(0, 30))
+  logger.info('Verifying token', authHeader.substring(0, 20))
   const token = getToken(authHeader)
   const jwt: Jwt = decode(token, { complete: true }) as Jwt
 
@@ -67,17 +67,19 @@ async function verifyToken(authHeader: string): Promise<JwtPayload> {
   const signingKeys = keys.find(key => key.kid === jwt.header.kid)
   logger.info('signingKeys', signingKeys)
   if (!signingKeys){
-    throw new Error("There was not key contained in teh JWKS endpoint")
+    throw new Error("There was not key contained in the JWKS endpoint")
     
   }
   // get pem data
   const pemData = signingKeys.x5c[0]
+  logger.info('pemData', pemData)
 
   //convert pem data to cert
   const cert = `-------BEGIN CERTIFICATE------\n${pemData}\n---------END CERTIFICATE-------`
-
+  console.log('cert data', cert)
   //Verify token
   const verifiedToken = verify(token, cert, { algorithms: ['RS256'] }) as JwtPayload
+  logger.info('verifiedToken', verifiedToken)
   return verifiedToken
 }
 
