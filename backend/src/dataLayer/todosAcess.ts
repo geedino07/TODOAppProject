@@ -41,76 +41,44 @@ export class TodosAccess {
         logger.info('create todo item function called-datalayer')
 
         const result = await this.docClient
-        .put({
-            TableName: this.todosTable,
-            Item: todoItem
-        })
+        .put({ TableName: this.todosTable, Item: todoItem })
         .promise()
         logger.info('Implemented new todo item', result)
         return todoItem as TodoItem
     }
 
     async updateTodoItem(
-        todoId: string,
-        userId: string,
-        todoUpdate: TodoUpdate  
-    ): Promise<TodoUpdate> {
-        logger.info('Úpdate todo item funcition called at datalayer')
-
-        await this.docClient
+        todoId: string, userId: string, todoUpdate: TodoUpdate ): Promise<TodoUpdate> 
+        { logger.info('Úpdate todo item function called at dl')
+        const result = await this.docClient
         .update({
             TableName: this.todosTable,
-            Key: {
-            todoId,
-            userId
-            },
+            Key: {todoId, userId },
             UpdateExpression: 'set #name= :name, dueDate = :dueDate, done = :done',
             ExpressionAttributeValues: {
-            ':name': todoUpdate.name,
-            ':dueDate': todoUpdate.dueDate,
-            ':done': todoUpdate.done
-            },
-            ExpressionAttributeNames: {
-            '#name': 'name'
-            }
+                ':name': todoUpdate.name,
+                ':dueDate': todoUpdate.dueDate, 
+                ':done': todoUpdate.done },
+            ExpressionAttributeNames: {'#name': 'name'},
+            ReturnValues: 'ALL_NEW'
         })
         .promise()
-        return todoUpdate
+        const todoItemUpdate  = result.Attributes
+        logger.info ('Update successful for Todo Item', todoItemUpdate) 
+        return todoItemUpdate as TodoUpdate
     }
 
-    async deleteTodoItem(todoId: string, userId: string): Promise<void> {
-        logger.info('Delete todo item function at datalayer')
 
-        await this.docClient
-        .delete({
-            TableName: this.todosTable,
-            Key: {
-            todoId,
-            userId
-            }
-        })
-        .promise()
-    }
-
-    async updateTodoAttachmentUrl(
-        todoId: string,
-        userId: string,
-        attachmentUrl: string,
-    ): Promise<void>{
-        logger.info('update todo attachment url function at datalayer')
-
+    async updateTodoAttachmentUrl( todoId: string, userId: string, attachmentUrl: string,): 
+    Promise<void>{ logger.info('update todo attachment url function at datalayer')
         await this.docClient
         .update({
             TableName: this.todosTable,
-            Key: {
-                todoId,
-                userId
-            },
+            Key: {todoId, userId },
             UpdateExpression: 'set attachmentUrl = :attachmentUrl',
             ExpressionAttributeValues: {
                 ':attachmentUrl': attachmentUrl
             }
-        })
-        .promise()
+        }).promise()
     }
 }
