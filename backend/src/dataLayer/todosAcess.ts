@@ -4,7 +4,6 @@ import { DocumentClient } from 'aws-sdk/clients/dynamodb'
 import { createLogger } from '../utils/logger'
 import { TodoItem } from '../models/TodoItem'
 import { TodoUpdate } from '../models/TodoUpdate';
-// import { relative } from 'path';
 // import { TodoUpdate } from '../models/TodoUpdate';
 var AWSXRay = require('aws-xray-sdk');
 
@@ -42,81 +41,44 @@ export class TodosAccess {
         logger.info('create todo item function called-datalayer')
 
         const result = await this.docClient
-        .put({
-            TableName: this.todosTable,
-            Item: todoItem
-        })
+        .put({ TableName: this.todosTable, Item: todoItem })
         .promise()
         logger.info('Implemented new todo item', result)
         return todoItem as TodoItem
     }
 
     async updateTodoItem(
-        todoId: string,
-        userId: string,
-        todoUpdate: TodoUpdate  
-    ): Promise<TodoUpdate> {
-        logger.info('Úpdate todo item function called at dl')
-
+        todoId: string, userId: string, todoUpdate: TodoUpdate ): Promise<TodoUpdate> 
+        { logger.info('Úpdate todo item function called at dl')
         const result = await this.docClient
         .update({
             TableName: this.todosTable,
-            Key: {
-            todoId,
-            userId
-            },
+            Key: {todoId, userId },
             UpdateExpression: 'set #name= :name, dueDate = :dueDate, done = :done',
             ExpressionAttributeValues: {
-            ':name': todoUpdate.name,
-            ':dueDate': todoUpdate.dueDate,
-            ':done': todoUpdate.done
-            },
-            ExpressionAttributeNames: {
-            '#name': 'name'
-            },
-            ReturnValues: 'Updated'
+                ':name': todoUpdate.name,
+                ':dueDate': todoUpdate.dueDate, 
+                ':done': todoUpdate.done },
+            ExpressionAttributeNames: {'#name': 'name'},
+            ReturnValues: 'ALL_NEW'
         })
         .promise()
         const todoItemUpdate  = result.Attributes
         logger.info ('Update successful for Todo Item', todoItemUpdate) 
-        return todoUpdate as TodoUpdate
+        return todoItemUpdate as TodoUpdate
     }
 
-    async deleteTodoItem(todoId: string, userId: string): Promise<string> {
-        logger.info('Delete todo item function at dl')
 
-        const result = await this.docClient
-        .delete({
-            TableName: this.todosTable,
-            Key: {
-            todoId,
-            userId
-            }
-        })
-        .promise()
-        logger.info('Todo Item deleted', result, todoId)
-        return todoId as string
-    }
-
-    async updateTodoAttachmentUrl(
-        todoId: string,
-        userId: string,
-        attachmentUrl: string,
-    ): Promise<void>{
-        logger.info('update todo attachment url function at datalayer')
-
+    async updateTodoAttachmentUrl( todoId: string, userId: string, attachmentUrl: string,): 
+    Promise<void>{ logger.info('update todo attachment url function at datalayer')
         await this.docClient
         .update({
             TableName: this.todosTable,
-            Key: {
-                todoId,
-                userId
-            },
+            Key: {todoId, userId },
             UpdateExpression: 'set attachmentUrl = :attachmentUrl',
             ExpressionAttributeValues: {
                 ':attachmentUrl': attachmentUrl
             }
-        })
-        .promise()
+        }).promise()
     }
 }
